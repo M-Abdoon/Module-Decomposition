@@ -1,15 +1,15 @@
-const appServerURL = "http://localhost:3000/";
-// const appServerURL = "https://m-abdoon-chatapp-backend.hosting.codeyourfuture.io/";
+//const appServerURL = "http://localhost:3000/";
+const appServerURL =
+  "https://m-abdoon-chatapp-backend.hosting.codeyourfuture.io/";
 
 const currentUser = prompt("Enter your name:") || "Unknown";
-
-let lastTimestamp = 0;
 
 async function setup() {
   await renderMessages();
 
   const messageText = document.getElementById("messageText");
   const submitMessage = document.getElementById("submitMessage");
+  const messagesContainer = document.querySelector(".chat-messages");
 
   submitMessage.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -18,31 +18,43 @@ async function setup() {
       const success = await sendMessage(message);
       if (success) {
         messageText.value = "";
+        await renderMessages();
       } else {
         alert("Failed to send message. Please try again.");
       }
     }
   });
 
-  setInterval(pollNewMessages, 500);
-}
+  messagesContainer.addEventListener("click", async (e) => {
+    const likeButton = e.target.closest(".like-button");
+    const dislikeButton = e.target.closest(".dislike-button");
 
-async function pollNewMessages() {
-  const newMessages = await fetchMessages(lastTimestamp);
-  if (newMessages.length > 0) {
-    appendMessages(newMessages);
-  }
+    if (likeButton || dislikeButton) {
+      const button = likeButton || dislikeButton;
+      const messageId = button.dataset.id;
+      const reaction = likeButton ? "like" : "dislike";
+
+      const success = await reactToMessage(messageId, reaction);
+      if (success) {
+        await renderMessages();
+      }
+    }
+  });
+
+  setInterval(renderMessages, 500);
 }
 
 async function renderMessages() {
   const messages = await fetchMessages(0);
+  const messagesContainer = document.querySelector(".chat-messages");
+  messagesContainer.innerHTML = "";
+
   messages.sort((a, b) => a.timestamp - b.timestamp);
   appendMessages(messages);
 }
 
 function appendMessages(messages) {
   const messagesContainer = document.querySelector(".chat-messages");
-  messages.sort((a, b) => a.timestamp - b.timestamp);
 
   messages.forEach((message) => {
     const role = currentUser === message.sender ? "sent" : "received";
@@ -52,12 +64,12 @@ function appendMessages(messages) {
     div.innerHTML = `
       <span class="sender-name">${message.sender}</span>
       <p>${message.message}</p>
+      <div class="reaction-row">
+        <button class="reaction-button like-button" data-id="${message.id}">👍 ${message.likes || 0}</button>
+        <button class="reaction-button dislike-button" data-id="${message.id}">👎 ${message.dislikes || 0}</button>
+      </div>
     `;
     messagesContainer.appendChild(div);
-
-    if (message.timestamp > lastTimestamp) {
-      lastTimestamp = message.timestamp;
-    }
   });
 
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -81,6 +93,20 @@ async function sendMessage(message) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, sender: currentUser }),
+    });
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function reactToMessage(id, reaction) {
+  try {
+    const response = await fetch(`${appServerURL}reactMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, reaction }),
     });
     const data = await response.json();
     return data.success;
