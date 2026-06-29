@@ -1,8 +1,9 @@
-//const appServerURL = "http://localhost:3000/";
-const appServerURL =
-  "https://m-abdoon-chatapp-backend.hosting.codeyourfuture.io/";
+const appServerURL = "http://localhost:3000/";
+// const appServerURL =
+//   "https://m-abdoon-chatapp-backend.hosting.codeyourfuture.io/";
 
 const currentUser = prompt("Enter your name:") || "Unknown";
+let lastTimestamp = 0;
 
 async function setup() {
   await renderMessages();
@@ -45,9 +46,13 @@ async function setup() {
 }
 
 async function renderMessages() {
-  const messages = await fetchMessages(0);
+  const messages = await fetchMessages(lastTimestamp);
   const messagesContainer = document.querySelector(".chat-messages");
   messagesContainer.innerHTML = "";
+
+  if (messages.length > 0) {
+    lastTimestamp = Math.max(lastTimestamp, ...messages.map((m) => m.timestamp));
+  }
 
   messages.sort((a, b) => a.timestamp - b.timestamp);
   appendMessages(messages);
