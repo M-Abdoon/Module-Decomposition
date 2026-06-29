@@ -45,7 +45,6 @@ app.post("/sendMessage", (req, res) => {
       dislikes: 0,
     });
 
-    console.log("New message received:", { message, sender });
     res.status(200).json({ success: true });
   } else {
     res.status(400).json({ success: false, error: "Invalid message data" });
