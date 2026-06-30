@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { randomUUID } from "crypto";
 
 let messages = [
   {
@@ -36,8 +37,9 @@ app.post("/sendMessage", (req, res) => {
   const { message, sender, replyTo } = req.body;
   if (message && sender) {
     const timestamp = Date.now();
+	const id = 
     messages.push({
-      id: timestamp,
+      id: randomUUID(),
       message,
       sender,
       timestamp,
