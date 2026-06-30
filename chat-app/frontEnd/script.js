@@ -4,6 +4,7 @@ const appServerURL = "http://localhost:3000/";
 
 const currentUser = prompt("Enter your name:") || "Unknown";
 let lastTimestamp = 0;
+let displayedMessages = [];
 
 async function setup() {
   await renderMessages();
@@ -47,14 +48,16 @@ async function setup() {
 
 async function renderMessages() {
   const messages = await fetchMessages(lastTimestamp);
-  const messagesContainer = document.querySelector(".chat-messages");
-  messagesContainer.innerHTML = "";
+  if (messages.length === 0) {
+    return;
+  }
 
   if (messages.length > 0) {
     lastTimestamp = Math.max(lastTimestamp, ...messages.map((m) => m.timestamp));
   }
 
   messages.sort((a, b) => a.timestamp - b.timestamp);
+  displayedMessages.push(...messages);
   appendMessages(messages);
 }
 
@@ -114,9 +117,31 @@ async function reactToMessage(id, reaction) {
       body: JSON.stringify({ id, reaction }),
     });
     const data = await response.json();
+
+    if (data.success && data.message) {
+      updateMessageReaction(data.message);
+    }
+
     return data.success;
   } catch (error) {
     return false;
+  }
+}
+
+function updateMessageReaction(message) {
+  const existingMessage = displayedMessages.find((m) => m.id === message.id);
+  if (existingMessage) {
+    Object.assign(existingMessage, message);
+  }
+
+  const likeButton = document.querySelector(`.like-button[data-id="${message.id}"]`);
+  const dislikeButton = document.querySelector(`.dislike-button[data-id="${message.id}"]`);
+
+  if (likeButton) {
+    likeButton.textContent = `👍 ${message.likes || 0}`;
+  }
+  if (dislikeButton) {
+    dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
   }
 }
 

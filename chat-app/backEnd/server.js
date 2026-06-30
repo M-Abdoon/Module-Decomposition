@@ -53,7 +53,7 @@ app.post("/sendMessage", (req, res) => {
 
 app.post("/reactMessage", (req, res) => {
   const { id, reaction } = req.body;
-  const message = messages.find((msg) => msg.id === Number(id));
+  const message = messages.get(Number(id));
 
   if (!message || !["like", "dislike"].includes(reaction)) {
     return res
