@@ -69,14 +69,29 @@ function appendMessages(messages) {
 
     const div = document.createElement("div");
     div.className = `message ${role}`;
-    div.innerHTML = `
-      <span class="sender-name">${message.sender}</span>
-      <p>${message.message}</p>
-      <div class="reaction-row">
-        <button class="reaction-button like-button" data-id="${message.id}">👍 ${message.likes || 0}</button>
-        <button class="reaction-button dislike-button" data-id="${message.id}">👎 ${message.dislikes || 0}</button>
-      </div>
-    `;
+
+    const senderName = document.createElement("span");
+    senderName.className = "sender-name";
+    senderName.textContent = message.sender;
+
+    const text = document.createElement("p");
+    text.textContent = message.message;
+
+    const reactionRow = document.createElement("div");
+    reactionRow.className = "reaction-row";
+
+    const likeButton = document.createElement("button");
+    likeButton.className = "reaction-button like-button";
+    likeButton.dataset.id = message.id;
+    likeButton.textContent = `👍 ${message.likes || 0}`;
+
+    const dislikeButton = document.createElement("button");
+    dislikeButton.className = "reaction-button dislike-button";
+    dislikeButton.dataset.id = message.id;
+    dislikeButton.textContent = `👎 ${message.dislikes || 0}`;
+
+    reactionRow.append(likeButton, dislikeButton);
+    div.append(senderName, text, reactionRow);
     messagesContainer.appendChild(div);
   });
 
