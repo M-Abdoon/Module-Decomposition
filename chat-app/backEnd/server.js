@@ -33,7 +33,7 @@ app.get("/getMessages", (req, res) => {
 });
 
 app.post("/sendMessage", (req, res) => {
-  const { message, sender } = req.body;
+  const { message, sender, replyTo } = req.body;
   if (message && sender) {
     const timestamp = Date.now();
     messages.push({
@@ -43,6 +43,7 @@ app.post("/sendMessage", (req, res) => {
       timestamp,
       likes: 0,
       dislikes: 0,
+      replyTo: replyTo || null,
     });
 
     res.status(200).json({ success: true });
