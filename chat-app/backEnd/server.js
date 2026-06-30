@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import { randomUUID } from "crypto";
 
-let messages = [
+const messages = [
   {
     id: 1,
     message: "Hi! welcome to the app, you can send messages now.",
@@ -12,6 +12,7 @@ let messages = [
     dislikes: 0,
   },
 ];
+const messagesById = new Map(messages.map((msg) => [String(msg.id), msg]));
 
 const app = express();
 const PORT = 3000;
@@ -37,8 +38,7 @@ app.post("/sendMessage", (req, res) => {
   const { message, sender, replyTo } = req.body;
   if (message && sender) {
     const timestamp = Date.now();
-	const id = 
-    messages.push({
+    const newMessage = {
       id: randomUUID(),
       message,
       sender,
@@ -46,7 +46,10 @@ app.post("/sendMessage", (req, res) => {
       likes: 0,
       dislikes: 0,
       replyTo: replyTo || null,
-    });
+    };
+
+    messages.push(newMessage);
+    messagesById.set(String(newMessage.id), newMessage);
 
     res.status(200).json({ success: true });
   } else {
@@ -56,7 +59,7 @@ app.post("/sendMessage", (req, res) => {
 
 app.post("/reactMessage", (req, res) => {
   const { id, reaction } = req.body;
-  const message = messages.get(Number(id));
+  const message = messagesById.get(String(id));
 
   if (!message || !["like", "dislike"].includes(reaction)) {
     return res
