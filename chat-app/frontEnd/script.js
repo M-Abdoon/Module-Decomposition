@@ -1,5 +1,5 @@
-const appServerURL = "http://localhost:3000/";
-//const appServerURL = "https://m-abdoon-chatapp-backend.hosting.codeyourfuture.io/";
+//const appServerURL = "http://localhost:3000/";
+const appServerURL = "https://m-abdoon-chatapp-backend.hosting.codeyourfuture.io/";
 
 const currentUser = prompt("Enter your name:") || "Unknown";
 let lastTimestamp = 0;
