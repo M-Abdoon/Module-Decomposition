@@ -67,7 +67,8 @@ async function renderMessages() {
   }
 
   if (messages.length > 0) {
-    lastTimestamp = Math.max(lastTimestamp, ...messages.map((m) => m.timestamp));
+	const lastMessage = messages[messages.length - 1];
+    lastTimestamp = Math.max(lastTimestamp, lastMessage.timestamp);
   }
 
   messages.sort((a, b) => a.timestamp - b.timestamp);
@@ -164,26 +165,26 @@ function handleReplyClick(messageId) {
   }
 
   replyToMessage = message;
-  renderReplyPreview();
+  renderReplyPreview(message);
 }
 
-function renderReplyPreview() {
+function renderReplyPreview(msg) {
   const replyPreview = document.getElementById("replyPreview");
   const replyPreviewText = document.getElementById("replyPreviewText");
 
-  if (!replyToMessage) {
+  if (!msg) {
     replyPreview.classList.add("hidden");
     replyPreviewText.textContent = "";
     return;
   }
 
-  replyPreviewText.textContent = `${replyToMessage.sender}: ${replyToMessage.message}`;
+  replyPreviewText.textContent = `${msg.sender}: ${msg.message}`;
   replyPreview.classList.remove("hidden");
 }
 
 function clearReplyPreview() {
   replyToMessage = null;
-  renderReplyPreview();
+  renderReplyPreview(null);
 }
 
 async function reactToMessage(id, reaction) {
