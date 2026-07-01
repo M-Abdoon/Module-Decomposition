@@ -13,6 +13,7 @@ async function setup() {
   const submitMessage = document.getElementById("submitMessage");
   const messagesContainer = document.querySelector(".chat-messages");
   const cancelReplyButton = document.getElementById("cancelReplyButton");
+  const messageRefreshInterval = 500;
 
   submitMessage.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -56,7 +57,7 @@ async function setup() {
     }
   });
 
-  setInterval(renderMessages, 500);
+  setInterval(renderMessages, messageRefreshInterval);
 }
 
 async function renderMessages() {
